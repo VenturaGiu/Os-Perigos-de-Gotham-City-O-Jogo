@@ -1,165 +1,82 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"> 
     <title>Document</title>
 </head>
 <body>
-    <canvas id="canvas" width="640" height="480" style="border: solid 1px black; margin: 0px auto; display: block;"></canvas>
-    <script>
-            //caso retorne false o jogo continua
-        	var gameOver = false;
-
-            //pega o canvas
-			var canvas = document.getElementById("canvas");
-			var contexto = canvas.getContext("2d");
-
-            //pontuação
-            var pontos = 0;
-            function desenhaPontos(){
-                contexto.fillStyle = "black";
-                contexto.font="12pt Monospace";
-                contexto.fillText(pontos, 5, 20);
-            }
-
-			//RUA
-			function desenhaFundo () {
-				//preenche o fundo com cinza escuro
-				contexto.fillStyle = "dimgray";
-				contexto.fillRect(0, 0, canvas.width, canvas.height);
-
-				//calcada superior
-				contexto.fillStyle = "lightgray";
-				contexto.fillRect(0, 0, canvas.width, 80);
-
-				//calcada inferior
-				contexto.fillStyle = "lightgray";
-				contexto.fillRect(0, 380, canvas.width, 100);
-
-				//faixas
-				contexto.fillStyle = "white";
-				for(var i = 0; i < 25; i++){
-					contexto.fillRect(i*30-5, 185, 20, 4);
-					contexto.fillRect(i*30-5, 280, 20, 4);
-				}
-			}
-
-            //imagem da batman
-			function Sprite(caminhoDaImagem, xInicial, yInicial) {
-				this.x = xInicial;
-				this.y = yInicial;
-
-				this.imagem = new Image();
-				this.imagem.src = caminhoDaImagem;
-
-				var that = this;
-				this.imagem.onload = function() {
-					that.largura = that.imagem.width;
-					that.altura = that.imagem.height;
-					that.desenhaImagem();
-				}
-
-				this.desenhaImagem = function() {
-					contexto.drawImage(this.imagem, this.x, this.y, this.largura, this.altura);
-				}
-
-				this.move = function(dx, dy) {
-					this.x += dx;
-					this.y += dy;
-
-					//limites dos cantos
-					if(this.x > canvas.width) {
-						this.x = -this.largura;
-					} else if(this.x < -this.largura) {
-						this.x = canvas.width;
-					}
-					if(this.y > canvas.height - this.altura + 5) {
-						this.y -= dy;
-					} else if(this.y <= -5) {
-						this.y = canvas.height - this.altura;
-					}
-				}
-
-				this.colidiu = function(outro){
-					var colidiuNoXTopo = outro.x >= this.x && outro.x <= (this.x + this.largura);
-					var colidiuNoYTopo = outro.y >= this.y && outro.y <= (this.y + this.altura);
-					var colidiuNoXBase = (outro.x + outro.largura) >= this.x && (outro.x + + outro.largura) <= (this.x + this.largura);
-					var colidiuNoYBase = (outro.y + outro.altura) >= this.y && (outro.y + outro.altura) <= (this.y + this.altura);
-					return (colidiuNoXTopo && colidiuNoYTopo) || (colidiuNoXBase && colidiuNoYBase);
-				}
-
-			}
-
-			var batman = new Sprite("img/batman.png", 320, 400);
-            batman.passou = function(){
-                if(this.y <= 0) {
-                    this.y = canvas.height - this.altura;
-                    return true;
-                }
-                return false;
-            };
-
-			var carrinhoAmarelo = new Sprite("img/carrinho-amarelo.png", -10, 300);
-
-			var carrinhoAzul = new Sprite("img/carrinho-azul.png", 560, 200);
-
-			var carrinhoPolicia = new Sprite("img/carrinho-policia.png", 10, 100);
-
-            //andando com a batman
-			document.onkeydown = function(event) {
-				if(gameOver){
-					return;
-				}
-
-				switch(event.which) {
-					case 37: //pra esquerda
-						batman.move(-10, 0);
-						break;
-					case 38: //pra cima
-						batman.move(0, -10);
-						break;
-					case 39: //pra direita
-						batman.move(10, 0);
-						break;
-					case 40: //pra baixo
-						batman.move(0, 10);
-						break;
-				}
-
-                if(batman.passou()){
-                    pontos++;
-                }
-			}
-
-            //para não deixar rastros
-			setInterval(function(){
-				desenhaFundo();
-                desenhaPontos();
-				batman.desenhaImagem();
-				carrinhoAmarelo.desenhaImagem();
-				carrinhoAzul.desenhaImagem();
-				carrinhoPolicia.desenhaImagem();
-
-				if(gameOver){
-					contexto.fillStyle = "red";
-					contexto.font="Bold 80px Sans";
-					contexto.fillText("GAME OVER", canvas.width/16, canvas.height/2+20);
-					return;
-				}
-
-				carrinhoAmarelo.move(7, 0);
-				carrinhoAzul.move(-5, 0);
-				carrinhoPolicia.move(10, 0);
-
-				if(carrinhoAmarelo.colidiu(batman)
-					|| carrinhoAzul.colidiu(batman)
-					|| carrinhoPolicia.colidiu(batman)){
-						gameOver = true;
-				}
-
-			},50);
-		</script>
+    <style>
+        @font-face {
+            font-family: 'BatmanForever';
+            src: url('batman_forever/batmfa__.woff');
+        }
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        body{
+            overflow: hidden;
+            font-family: 'Press Start 2P', cursive;
+        }
+        .esquerda{
+            width: 60%;
+            height: 100vh;
+            background-image: url("https://cdn.dribbble.com/users/1115728/screenshots/6608514/bat.gif");
+            background-size: cover;
+            background-repeat: no-repeat;
+            float: left;
+        }
+        .direira{
+            width: 40%;
+            height: 100vh;
+            background-color: #fede31;
+            float: left;
+        }
+        .instrucao{
+            width: 80%;
+            height: 80%;
+            margin: 0 auto !important;
+            margin-top: 8% !important;
+        }
+        .titulo{
+            padding: 2%;
+            background-color: black;
+            text-align: center;
+            width: 100%;
+            font-size: 150%;
+            color: #fede31;
+        }
+        hr{
+            border: 1px dashed rgb(73, 73, 73);
+        }
+    </style>
+    
+    <div class="esquerda">
+        
+    </div>
+    <div class="direira">
+        <h1 class="titulo">
+            Os Perigos de Gotham City
+        </h1>
+        <div class="instrucao">
+            <h2>Bat-Instruções</h2>
+            <hr style="margin-top: 3%; margin-bottom: 8%;">
+            <ol>
+                <li>
+                    Use as bat-teclas para mover o Batman e atingir o seu bat-objetivo
+                    <img src="img/teclado.png" style="width: 40%; margin-top: 4%; margin-left: 30%;" />
+                </li>
+                <li>
+                    Atravesse a rua para conseguir pontos, mas não esqueça de olhar para os dois lados
+                    <img src="img/olho.gif" style="width: 40%; margin-top: 4%; margin-left: 30%;" />
+                </li>
+            </ol>
+        </div>
+    </div>
 </body>
 </html>
