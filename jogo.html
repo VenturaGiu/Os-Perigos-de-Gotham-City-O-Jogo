@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"> 
+	<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 	<title>Document</title>
 </head>
+
 <body>
 	<style>
-		body{
+		body {
 			padding: 0;
 			margin: 0;
 			display: flex;
@@ -23,8 +25,8 @@
 			background-image: url("./img/alo.jpg");
 			box-shadow: inset 0 0 30em black;
 		}
-		
-		.fundo{
+
+		.fundo {
 			width: 80vw;
 			margin-left: 25%;
 			height: 100%;
@@ -34,8 +36,8 @@
 			position: absolute;
 			z-index: 5;
 		}
-		
-		.placar{
+
+		.placar {
 			background-color: #FFA500;
 			box-shadow: inset 0 0 2em black;
 			width: 20vw;
@@ -49,52 +51,76 @@
 			color: white;
 			font-size: 250%;
 		}
-		
-		.placar h1{
+
+		.placar h1 {
 			margin: 0 auto;
 		}
-		
 	</style>
 	<img style="display: none;" id="asfalto" src="./img/asfalto.jpg" />
 	<img style="display: none;" id="calcada" src="./img/calcada.jpg" />
 	<img style="display: none;" id="meiofio" src="./img/meiofio.jpg" />
-	<div class="placar"><h1 id="pontos">0</h1></div>
+	<div class="placar">
+		<h1 id="pontos">0</h1>
+	</div>
 	<div class="fundo"></div>
-	<canvas id="canvas" width="640" height="480" style="margin: 0 auto; width: 35.5%; display: flex; z-index: 1; margin-top: 8.5%;"></canvas>
+	<canvas id="canvas" width="640" height="480"
+		style="margin: 0 auto; width: 35.5%; display: flex; z-index: 1; margin-top: 8.5%;"></canvas>
 	<script>
-		
+
 		//caso retorne false o jogo continua
 		var gameOver = false;
-		
+
 		//pega o canvas
 		var canvas = document.getElementById("canvas");
 		var ctx = canvas.getContext("2d");
-		
+
 		//pontuação
 		var pontos = 0;
-		
-		var speed = 1
-		
-		function desenhaPontos(){
+
+		//velocidade do batman
+		var speed_bat_up = -10;
+		var speed_bat_down = 10;
+		var speed_bat_left = -10;
+		var speed_bat_right = 10;
+
+
+		//porcentagem da velocidade
+		var speed = 1.2;
+		var speed_bat = 5;
+		var bat_tick = 60;
+
+		//Teste
+		var esquerda = false;
+		var cima = false;
+		var direita = false;
+		var baixo = false;
+
+
+		//valocidade dos carrinhos
+		var speed_carroPlatina = 10;
+		var speed_carroBatman = -5;
+		var speed_carrinhoPolicia = 10;
+
+		function desenhaPontos() {
 			ctx.fillStyle = "black";
-			ctx.font="12pt Monospace";
+			ctx.font = "12pt Monospace";
 			ctx.fillText(pontos, 5, 20);
 		}
 
-		document.addEventListener("click", function(){
-			if(gameOver == true){
+		document.addEventListener("click", function () {
+			if (gameOver == true) {
 				location.reload()
 			}
 		});
-		
+
 		//RUA
-		function desenhaFundo () {
+		function desenhaFundo() {
 			//preenche o fundo com cinza escuro
 			var img = document.getElementById("asfalto");
 			var pat = ctx.createPattern(img, "repeat");
 			ctx.fillStyle = pat;
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
-			
+
 			//calcada superior
 			var img = document.getElementById("calcada");
 			var pat = ctx.createPattern(img, "repeat");
@@ -106,7 +132,7 @@
 			var pat = ctx.createPattern(img, "repeat");
 			ctx.fillStyle = pat;
 			ctx.fillRect(0, 80, canvas.width, 12);
-			
+
 			//calcada inferior
 			var img = document.getElementById("calcada");
 			var pat = ctx.createPattern(img, "repeat");
@@ -118,136 +144,210 @@
 			var pat = ctx.createPattern(img, "repeat");
 			ctx.fillStyle = pat;
 			ctx.fillRect(0, 380, canvas.width, 12);
-			
+
 			//faixas
 			ctx.fillStyle = "#fcba03";
-			for(var i = 0; i < 25; i++){
-				ctx.fillRect(i*30-5, 185, 20, 4);
-				ctx.fillRect(i*30-5, 280, 20, 4);
+			for (var i = 0; i < 25; i++) {
+				ctx.fillRect(i * 30 - 5, 185, 20, 4);
+				ctx.fillRect(i * 30 - 5, 280, 20, 4);
 			}
 		}
-		
+
 		//imagem da batman
-		function Sprite(caminhoDaImagem, xInicial, yInicial) {
+		function Sprite(caminhoDaImagem, caminhoDaImagem2, xInicial, yInicial) {
 			this.x = xInicial;
 			this.y = yInicial;
-			
+
 			this.imagem = new Image();
-			this.imagem.src = caminhoDaImagem;
 			
+			this.imagem.src = caminhoDaImagem;
+
 			var that = this;
-			this.imagem.onload = function() {
+			this.imagem.onload = function () {
 				that.largura = that.imagem.width;
 				that.altura = that.imagem.height;
 				that.desenhaImagem();
 			}
-			
-			this.desenhaImagem = function() {
+
+			this.desenhaImagem = function () {
+				if(caminhoDaImagem2 === null){
+				}else{
+					if(direita){
+						this.imagem.src = caminhoDaImagem2;
+					}else{
+						this.imagem.src = caminhoDaImagem;
+					}
+				}
+				
+				
 				ctx.drawImage(this.imagem, this.x, this.y, this.largura, this.altura);
 			}
-			
-			this.move = function(dx, dy) {
+
+			this.move = function (dx, dy) {
 				this.x += dx;
 				this.y += dy;
-				
+
 				//limites dos cantos
-				if(this.x > canvas.width) {
+				if (this.x > canvas.width) {
 					this.x = -this.largura;
-				} else if(this.x < -this.largura) {
+				} else if (this.x < -this.largura) {
 					this.x = canvas.width;
 				}
-				if(this.y > canvas.height - this.altura + 5) {
+				if (this.y > canvas.height - this.altura + 5) {
 					this.y -= dy;
-				} else if(this.y <= -5) {
+				} else if (this.y <= -5) {
 					this.y = canvas.height - this.altura;
 				}
 			}
-			
-			this.colidiu = function(outro){
-				var colidiuNoXTopo = outro.x >= this.x && outro.x <= (this.x + this.largura);
-				var colidiuNoYTopo = outro.y >= this.y && outro.y <= (this.y + this.altura);
+
+			this.colidiu = function (outro) {
+				var colidiuNoXTopo = outro.x >= (this.x) && outro.x <= (this.x + this.largura);
+				var colidiuNoYTopo = outro.y >= (this.y-30) && outro.y <= ((this.y-30 )+ this.altura);
 				var colidiuNoXBase = (outro.x + outro.largura) >= this.x && (outro.x + + outro.largura) <= (this.x + this.largura);
-				var colidiuNoYBase = (outro.y + outro.altura) >= this.y && (outro.y + outro.altura) <= (this.y + this.altura);
+				var colidiuNoYBase = (outro.y + outro.altura) >= (this.y+15) && (outro.y + outro.altura) <= ((this.y+15) + this.altura);
 				return (colidiuNoXTopo && colidiuNoYTopo) || (colidiuNoXBase && colidiuNoYBase);
 			}
-			
+
 		}
+
+		var batman = new Sprite("img/batman.png", "img/batman2.png", 320, 400);
 		
-		var batman = new Sprite("img/batman.png", 320, 400);
-		batman.passou = function(){
-			if(this.y <= 0) {
+		batman.passou = function () {
+			if (this.y <= 0) {
 				this.y = canvas.height - this.altura;
 				return true;
 			}
 			return false;
 		};
-		
-		var carroPlatina = new Sprite("img/carroPlatina.png", -10, 300);
-		
-		var carroBatman = new Sprite("img/carroBatman.png", -10, 200);
-		
-		var carrinhoPolicia = new Sprite("img/carrinho-policia.png", 10, 100);
-		
-		//andando com a batman
-		document.onkeydown = function(event) {
-			if(gameOver){
+
+		var carroPlatina = new Sprite("img/carroPlatina.png",null, -10, 300);
+
+		var carroBatman = new Sprite("img/carroBatman.png",null, -10, 200);
+
+		var carrinhoPolicia = new Sprite("img/carrinho-policia.png",null, 10, 100);
+
+		var intervalo = setInterval(() => {
+			if (gameOver) {
 				return;
 			}
-			
-			switch(event.which) {
+			if (esquerda)
+				batman.move(speed_bat_left, 0);
+			if (direita)
+				batman.move(speed_bat_right, 0);
+			if (cima)
+				batman.move(0, speed_bat_up);
+			if (baixo)
+				batman.move(0, speed_bat_down);
+			verfica()
+		}, bat_tick);
+		document.onkeyup = function (event) {
+
+			switch (event.which) {
+
 				case 37: //pra esquerda
-				batman.move(-10, 0);
-				break;
+					esquerda = false
+					break;
 				case 38: //pra cima
-				batman.move(0, -10);
-				break;
+					cima = false
+					break;
 				case 39: //pra direita
-				batman.move(10, 0);
-				break;
+					direita = false
+					break;
 				case 40: //pra baixo
-				batman.move(0, 10);
-				break;
-			}
-			
-			if(batman.passou()){
-				pontos++;
-				document.getElementById('pontos').innerHTML = pontos
-				speed += 0.1
+					baixo = false
+					break;
 			}
 		}
-		
+		//andando com a batman
+		document.onkeydown = function (event) {
+			if (gameOver) {
+				return;
+			}
+			switch (event.which) {
+
+				case 37: //pra esquerda
+				
+					esquerda = true
+					break;
+				case 38: //pra cima
+					cima = true
+					break;
+				case 39: //pra direita
+					direita = true
+					break;
+				case 40: //pra baixo
+					baixo = true
+					break;
+			}
+
+
+		}
+
+		function verfica() {
+			if (batman.passou()) {
+				pontos++;
+				document.getElementById('pontos').innerHTML = pontos
+				speed_carroPlatina *= speed;
+				speed_carroBatman *= speed;
+				speed_carrinhoPolicia *= speed;
+
+				clearInterval(intervalo)
+				bat_tick -= speed_bat
+				if (bat_tick<=0){
+					bat_tick = 1
+				}
+				intervalo = setInterval(() => {
+					if (gameOver) {
+						return;
+					}
+					if (esquerda)
+						batman.move(speed_bat_left, 0);
+					if (direita)
+						batman.move(speed_bat_right, 0);
+					if (cima)
+						batman.move(0, speed_bat_up);
+					if (baixo)
+						batman.move(0, speed_bat_down);
+					verfica()
+				}, bat_tick);
+				return true
+
+			} return false
+		}
 		//para não deixar rastros
-		setInterval(function(){
-			
+		setInterval(function () {
+
 			desenhaFundo();
 			desenhaPontos();
 			batman.desenhaImagem();
 			carroPlatina.desenhaImagem();
 			carroBatman.desenhaImagem();
 			carrinhoPolicia.desenhaImagem();
-			
-			if(gameOver){
+
+
+			if (gameOver) {
 				ctx.fillStyle = "#FFA500";
-				ctx.font="Bold 60px 'Press Start 2P'";
-				ctx.fillText("GAME OVER", canvas.width/16, canvas.height/2+20);
+				ctx.font = "Bold 60px 'Press Start 2P'";
+				ctx.fillText("GAME OVER", canvas.width / 16, canvas.height / 2 + 20);
 				ctx.fillStyle = "#FFA500";
-				ctx.font="Bold 30px 'Press Start 2P'";
-				ctx.fillText("CLICK TO PLAY AGAIN", canvas.width/16, canvas.height/2+90);
+				ctx.font = "Bold 30px 'Press Start 2P'";
+				ctx.fillText("CLICK TO PLAY AGAIN", canvas.width / 16, canvas.height / 2 + 90);
 				return;
 			}
-			
-			carroPlatina.move(speed * 10, 0);
-			carroBatman.move(speed * -5, 0);
-			carrinhoPolicia.move(speed * 10, 0);
-			
-			if(carroPlatina.colidiu(batman)
-			|| carroBatman.colidiu(batman)
-			|| carrinhoPolicia.colidiu(batman)
-			){
+
+			carroPlatina.move(speed_carroPlatina, 0);
+			carroBatman.move(speed_carroBatman, 0);
+			carrinhoPolicia.move(speed_carrinhoPolicia, 0);
+
+			if (carroPlatina.colidiu(batman)
+				|| carroBatman.colidiu(batman)
+				|| carrinhoPolicia.colidiu(batman)
+			) {
 				gameOver = true;
 			}
-			
-		},60);
+
+		}, 60);
 	</script>
 </body>
+
 </html>
